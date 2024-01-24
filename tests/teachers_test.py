@@ -1,3 +1,4 @@
+from core.models.assignments import AssignmentStateEnum, GradeEnum
 def test_get_assignments_teacher_1(client, h_teacher_1):
     response = client.get(
         '/teacher/assignments',
@@ -19,7 +20,6 @@ def test_get_assignments_teacher_2(client, h_teacher_2):
     )
 
     assert response.status_code == 200
-
     data = response.json['data']
     for assignment in data:
         assert assignment['teacher_id'] == 2
@@ -100,3 +100,24 @@ def test_grade_assignment_draft_assignment(client, h_teacher_1):
     data = response.json
 
     assert data['error'] == 'FyleError'
+
+
+
+
+
+def test_grade_assignment(client, h_teacher_2):
+    response = client.post(
+        '/teacher/assignments/grade',
+        json={
+            'id': 3,
+            'grade': GradeEnum.C.value
+        },
+        headers=h_teacher_2
+    )
+
+    assert response.status_code == 200
+
+    assert response.json['data']['state'] == AssignmentStateEnum.GRADED.value
+    assert response.json['data']['grade'] == GradeEnum.C
+
+
